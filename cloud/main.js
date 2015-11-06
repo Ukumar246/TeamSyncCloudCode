@@ -1,9 +1,68 @@
 // Deployed by karsh X
+var Stripe = require('stripe');
+Stripe.initialize('sk_test_oG4972Grob0VQjt1AXyzgYzF');// Warning: Secret KEY!!
+
+var Mailgun = require('mailgun');
+Mailgun.initialize('sandboxf9bfc87f52304e0a8fcda5376ad96404.mailgun.org', 'key-96d90b889d298c256aeb883d6399de04');
+
 Parse.Cloud.define("test", function(request, response) {
 	console.log("Parse Cloud Code Works!");
   	response.success("cool");
 });
 
+// ----------- Before Save Team ------------
+Parse.Cloud.beforeSave("Team", function(request, response)
+{  
+    console.log('===== Before Save Team ========');
+    var ghost = request.object.get('ghost');
+    var team = request.object;
+    
+    if (ghost == true)
+    {
+        console.log('* Ghost Team');
+        // Send email to self!
+    }
+    
+    team.set('teamWins', 0);
+    team.set('teamLosses', 0);
+    
+    team.set('scorekeepers', []);
+    team.set('subscribers', []);
+    team.set('games', []);
+    response.success();
+});
+
+// ----------- After Save Team ------------
+Parse.Cloud.afterSave("Team", function(request) {
+    
+	var thisObject = request.object;
+
+    console.log("====== AFTER SAVE TEAM =========");
+    
+	var querySchool = thisObject.get('school');
+	// Add Schools' teams
+	querySchool.fetch(
+        {
+          success: function(school) {
+            
+              console.log('* Query Success: School found');
+              school.addUnique('teams', thisObject);
+              
+              school.save(null, {
+                  success: function(school) {
+                    console.log('* Added to school teams successfully!\n*School Saved!');
+                  },
+                  error: function(school, error) 
+                  {
+                    console.error('* ## Couldnt save school!' + error.message);                  }
+                });
+          },
+          error: function(school, error) {
+            console.error('* Error: could not fetch school');
+          }
+        });
+        
+});
 
 // ----------- Before Save Game ------------
 Parse.Cloud.beforeSave("Game", function(request, response){
@@ -323,4 +382,85 @@ Parse.Cloud.define("sendPushToUser", function(request, response) {
 	 }
   });
   
+});
+
+
+/* ---------------------- Server Functions -----------------------------*/
+// EMAIL Function
+Parse.Cloud.define("email", function(request, response)
+{
+    console.log("** ==== email invoked on the cloud ==== **");
+    
+    var emailTo = request.params.emailTo;
+    var subject = request.params.subject;
+    var text = request.params.text;
+    
+    console.log("* email to: " + emailTo);
+    console.log("* subject: " + subject);
+    console.log("* text: " + text);
+
+    Mailgun.sendEmail({
+          to: emailTo,
+          from: "orders@teamsyncweb.com",
+          subject: subject,
+          text: text
+    }, {
+        success: function(httpResponse) 
+        {
+            console.log("* Email Success! ");
+            //console.log(httpResponse);
+            response.success("Email sent!");
+        },
+        error: function(httpResponse) 
+        {
+            console.error(httpResponse);
+            response.error("Uh oh, something went wrong");
+        } 
+    });   
+
+});
+
+// PAYMENT FUNCTION
+Parse.Cloud.define("charge", function(request, response) {
+
+  var token = request.params.token;
+  var amount = request.params.amount;
+  var dollarAmount = amount/100;
+  var descriptionText = request.params.description;
+  var cardHolderName = request.params.cardholdername;
+  var emailAddress = request.params.email;
+    
+  console.log("#Running payment with: \n*token: \t" + token + "\n*amount: \t" + amount + "\n*description: \t" + descriptionText + "\n*Card Holder Name: \t" + cardHolderName);
+    
+  Stripe.Charges.create({
+    amount:       amount,               // In cents
+    currency:     "usd",
+    card:         token,
+    description:  descriptionText,
+  },{
+    success: function(httpResponse) {
+      console.log("$$ payment success $$" + "-What A G");
+
+        var emailPaymentSubjectText = 'Hello '+ cardHolderName + '! Your order is being processed.';
+        var textString = 'Your credit card statement will include an invoice of $' + dollarAmount + '.\nOrder description: ' + descriptionText + '\n\nThankyou for using Team Sync in your schools.\nWe hope you have a record setting year\n\nFor any help, questions, setup, or just to voice your opinion please dont hesitate to email us at support@teamsyncweb.com\n\n-Your friends at Team Sync :)';
+        
+        Parse.Cloud.run('email', {"emailTo":emailAddress,"subject":emailPaymentSubjectText,"text": textString}, {
+            success: function(result) 
+            {
+                console.log("* Email Sent!");
+                response.success("$ Payment Successful, Email Sent!");
+            },
+            error: function(error) 
+            {
+                console.log("* Email Returned Error" + error.description);
+                response.success("$ Payment Successful, Email NOT SENT!");
+            }
+        });
+    },
+    error: function(httpResponse) {
+      console.error(" --- Uh oh, something went wrong" + "\terror message: "+ httpResponse + " --- ");
+      response.error("Uh oh, something went wrong" + "\t error message: "+ httpResponse);
+    }
+  });
+
 });
