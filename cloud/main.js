@@ -1,4 +1,4 @@
-// Deployed by karsh X
+// Deployed by karsh X @ Fri 1:47 PM
 var Stripe = require('stripe');
 Stripe.initialize('sk_test_oG4972Grob0VQjt1AXyzgYzF');// Warning: Secret KEY!!
 
@@ -8,6 +8,61 @@ Mailgun.initialize('sandboxf9bfc87f52304e0a8fcda5376ad96404.mailgun.org', 'key-9
 Parse.Cloud.define("test", function(request, response) {
 	console.log("Parse Cloud Code Works!");
   	response.success("cool");
+});
+
+// ----------- Request Objects -----------
+Parse.Cloud.define("requestAdminAccount", function(request, response) 
+{
+	var schoolName      = request.params.schoolName;
+    var locationAddress = request.params.locationAddress;
+    var district        = request.params.district;
+    var email           = request.params.email;
+    var phone           = request.params.phone;
+    var name            = request.params.name;
+    
+    var RequestObject = Parse.Object.extend("Requests");
+    var request = new RequestObject();
+
+    request.set("schoolName", schoolName);
+    request.set("locationAddress", locationAddress);
+    request.set("district", district);
+    request.set("email", email);
+    request.set("name", name);
+    request.set("phone", phone);
+    console.log('* Saving Request....');
+    
+    request.save(null, 
+    {
+        success: function(request) 
+        {
+            console.log("* Request saved");
+
+            // Send Email
+            var emailSubjectString = 'Hey ' + name + '! '+ 'Thankyou for signing up for TeamSync.';
+            var textString = 'We love to have you on board using our app. \n\nOne of our team members will be in contact with you shortly to guide you through the setup process and make sure your satisfied with every step.\n\n' + 'We have a strong commitment to help sport lovers feel the love and passion behind the game.\n\nBest Regards,\n-TeamSync Team.';
+            var recipientString = email + ',' + 'orders@teamsyncweb.com,' + 'quinn@teamsyncweb.com,' + 'kyle@teamsyncweb.com,' + 'dilip@teamsyncweb.com'; 
+
+            console.log('* Email Recipients ' + recipientString);
+
+            Parse.Cloud.run('email', {"emailTo":recipientString,"subject":emailSubjectString,"text": textString},{
+                success: function(result) 
+                {
+                    console.log("* Email Sent!");
+                    response.success("$ Email Sent!");
+                },
+                error: function(error) 
+                {
+                    console.log("* Email Returned Error" + error.message);
+                    response.error(error);
+                }
+            });
+      },
+      error: function(request, error) 
+        {
+          console.error("* Request FAILED TO SAVE "+ error.message);
+          response.error(error.message);
+        }
+    });
 });
 
 // ----------- Before Save Team ------------
@@ -21,18 +76,20 @@ Parse.Cloud.beforeSave("Team", function(request, response)
     {
         console.log('* Ghost Team');
         // Send email to self!
+        
+        team.set('teamWins', 0);
+        team.set('teamLosses', 0);
+
+        team.set('scorekeepers', []);
+        team.set('subscribers', []);
+        team.set('games', []);        
     }
     
-    team.set('teamWins', 0);
-    team.set('teamLosses', 0);
-    
-    team.set('scorekeepers', []);
-    team.set('subscribers', []);
-    team.set('games', []);
     response.success();
 });
 
 // ----------- After Save Team ------------
+/*
 Parse.Cloud.afterSave("Team", function(request) {
     
 	var thisObject = request.object;
@@ -61,10 +118,12 @@ Parse.Cloud.afterSave("Team", function(request) {
             console.error('* Error: could not fetch school');
           }
         });
-        
 });
 
+*/
+
 // ----------- Before Save Game ------------
+/*
 Parse.Cloud.beforeSave("Game", function(request, response){
     var thisUser = Parse.User.current();
 	var thisObject = request.object;
@@ -72,7 +131,7 @@ Parse.Cloud.beforeSave("Game", function(request, response){
     // Save Game
     thisObject.set("inProgress",1);
     thisObject.set("createdBy", thisUser);
-
+    
     // CREATE Home Score Objects
     var homeScoreObj = Parse.Object.extend("Score_basketball");
     var gameScore = new homeScoreObj();
@@ -120,6 +179,8 @@ Parse.Cloud.beforeSave("Game", function(request, response){
         }
     });	
 });
+*/
+
 
 // ----------- After Save Game -------------
 Parse.Cloud.afterSave("Game", function(request) {
@@ -384,7 +445,6 @@ Parse.Cloud.define("sendPushToUser", function(request, response) {
   
 });
 
-
 /* ---------------------- Server Functions -----------------------------*/
 // EMAIL Function
 Parse.Cloud.define("email", function(request, response)
@@ -413,8 +473,8 @@ Parse.Cloud.define("email", function(request, response)
         },
         error: function(httpResponse) 
         {
-            console.error(httpResponse);
-            response.error("Uh oh, something went wrong");
+            console.error("ERROR: " + httpResponse);
+            response.error(httpResponse);
         } 
     });   
 
@@ -459,7 +519,7 @@ Parse.Cloud.define("charge", function(request, response) {
     },
     error: function(httpResponse) {
       console.error(" --- Uh oh, something went wrong" + "\terror message: "+ httpResponse + " --- ");
-      response.error("Uh oh, something went wrong" + "\t error message: "+ httpResponse);
+      response.error("Error: "+ httpResponse);
     }
   });
 

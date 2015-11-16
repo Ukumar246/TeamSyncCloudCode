@@ -13,8 +13,9 @@ body {
     color: #777;
 }
 
-.text-primary {
-    color: #fed136;
+.text-primary 
+{
+    color: #FF0000;
 }
 
 p {
@@ -35,14 +36,14 @@ a.active {
 }
 
 a {
-    color: #fed136;
+    color: #FF0000;
 }
 
 a:hover,
 a:focus,
 a:active,
 a.active {
-    color: #fec503;
+    color: #FF0000;
 }
 
 h1,
@@ -77,12 +78,12 @@ h6 {
 }
 
 .btn-primary {
-    border-color: #fed136;
+    border-color: #FF0000;
     text-transform: uppercase;
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: 700;
     color: #fff;
-    background-color: #fed136;
+    background-color: #FF0000;
 }
 
 .btn-primary:hover,
@@ -127,14 +128,14 @@ fieldset[disabled] .btn-primary.active {
 
 .btn-xl {
     padding: 20px 40px;
-    border-color: #fed136;
+    border-color: #FF0000;
     border-radius: 3px;
     text-transform: uppercase;
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: #fff;
-    background-color: #fed136;
+    background-color: #FF0000;
 }
 
 .btn-xl:hover,
@@ -142,9 +143,9 @@ fieldset[disabled] .btn-primary.active {
 .btn-xl:active,
 .btn-xl.active,
 .open .dropdown-toggle.btn-xl {
-    border-color: #f6bf01;
+    border-color: #FFFFFF;
     color: #fff;
-    background-color: #fec503;
+    
 }
 
 .btn-xl:active,
@@ -860,7 +861,7 @@ ul.social-buttons li a:active {
 
 ::selection {
     text-shadow: none;
-    background: #fed136;
+    background: #FF0000;
 }
 
 img::selection {
