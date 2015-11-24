@@ -38,8 +38,8 @@ Parse.Cloud.define("requestAdminAccount", function(request, response)
             console.log("* Request saved");
 
             // Send Email
-            var emailSubjectString = 'Hey ' + name + '! '+ 'Thankyou for signing up for TeamSync.';
-            var textString = 'We love to have you on board using our app. \n\nOne of our team members will be in contact with you shortly to guide you through the setup process and make sure your satisfied with every step.\n\n' + 'We have a strong commitment to help sport lovers feel the love and passion behind the game.\n\nBest Regards,\n-TeamSync Team.';
+            var emailSubjectString = 'Hey ' + name + '! '+ 'Thank you for signing up for TeamSync.';
+            var textString = 'We can\'t wait to get you started with TeamSync. \n\nOne of our team members will be in contact with you shortly to guide you through the setup process and make sure you\'re satisfied with every step.\n\n' + 'We have a strong commitment to help sport lovers feel the love and passion behind the game.\n\nBest Regards,\n-Your friends at TeamSync.';
             var recipientString = email + ',' + 'orders@teamsyncweb.com,' + 'quinn@teamsyncweb.com,' + 'kyle@teamsyncweb.com,' + 'dilip@teamsyncweb.com'; 
 
             console.log('* Email Recipients ' + recipientString);
