@@ -89,11 +89,8 @@ Parse.Cloud.beforeSave("Team", function(request, response)
 });
 
 // ----------- After Save Team ------------
-/*
 Parse.Cloud.afterSave("Team", function(request) {
-    
 	var thisObject = request.object;
-
     console.log("====== AFTER SAVE TEAM =========");
     
 	var querySchool = thisObject.get('school');
@@ -107,7 +104,7 @@ Parse.Cloud.afterSave("Team", function(request) {
               
               school.save(null, {
                   success: function(school) {
-                    console.log('* Added to school teams successfully!\n*School Saved!');
+                    console.log('* Added to school teams successfully!\n*# School Saved!');
                   },
                   error: function(school, error) 
                   {
@@ -119,8 +116,6 @@ Parse.Cloud.afterSave("Team", function(request) {
           }
         });
 });
-
-*/
 
 // ----------- Before Save Game ------------
 /*
