@@ -293,6 +293,7 @@ Parse.Cloud.afterSave("Score_basketball", function(request) {
     });
     
 });
+*/
 
 //afterDelete triggger that removes references to deleted game in the correponding teams as well as deletes the score objects connected to the game
 Parse.Cloud.afterDelete("Game", function(request){
@@ -369,39 +370,6 @@ Parse.Cloud.afterDelete("Game", function(request){
 	});
 
 });
-
-*/
-
-/*
-Parse.Cloud.define("teams", function(request, response) {
-	console.log("teams test function");  
-
-	var team = Parse.Object.extend("Team");
-	var query = new Parse.Query(team);
-	query.find({
-	  success: function(results) {
-	    var statusStr = "Successfully retrieved " + results.length + " teams.";
-	    console.log(statusStr);
-		
-		// Iterate over all team id's
-	    for (var i = 0; i < results.length; i++) 
-	    {
-	      var object = results[i];
-	      var displayStr = object.id + "\tname: " + object.get("teamName");
-	      console.log(displayStr);
-	    }
-
-	    response.success(results);
-	  },
-	  error: function(error) {
-	    var displayStr = "Error: " + error.code + " " + error.message;
-	    console.log(displayStr);
-	  	
-	    response.success("failed");
-	  }
-	});
-});
-*/
 
 Parse.Cloud.define("sendPushToUser", function(request, response) {
   var senderUser = request.user;
